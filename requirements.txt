@@ -1,0 +1,22 @@
+--extra-index-url https://download.pytorch.org/whl/cu128
+torch==2.7.1+cu128
+torchaudio==2.7.1+cu128
+
+# Additional packages (these will still install from PyPI unless available at the index above)
+transformers==4.51.3
+datasets==3.6.0
+librosa==0.11.0
+jiwer==3.1.0
+soundfile==0.13.1
+tqdm==4.67.1
+ipython==8.37.0
+accelerate==1.8.1
+num2fawords==1.1
+parsivar==0.2.3.1
+pandas==2.3.1
+
+nemo_toolkit[asr]==2.3.2
+numpy==1.26.4
+protobuf==4.24.4
+scikit-learn==1.7.0
+setuptools==80.9.0
