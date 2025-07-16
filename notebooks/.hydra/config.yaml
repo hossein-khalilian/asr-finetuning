@@ -1,0 +1,11 @@
+output_dir: /home/user/.cache
+path: hsekhalilian/sorted_commonvoice
+name: null
+split: null
+use_auth_token: false
+sampling_rate: 16000
+streaming: false
+num_proc: -1
+ensure_ascii: true
+resolved_output_dir: ''
+split_output_dir: null
