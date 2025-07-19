@@ -27,11 +27,15 @@ def save_audio(waveform: torch.Tensor, sr: int, path: Path) -> None:
 
 
 def process_sample(sample: Dict, output_dir: Path) -> Dict:
-    text = sample["normalized_transcription"]
+    text = (
+        sample.get("normalized_transcription")
+        or sample.get("sentence")
+        or sample.get("text")
+    )
     audio_info = sample["audio"]
 
     audio_filename = Path(audio_info["path"]).name
-    output_audio_path = output_dir / audio_filename
+    output_audio_path = output_dir / "audio_files" / audio_filename
 
     waveform = torch.tensor(audio_info["array"]).unsqueeze(0)
     sr = audio_info["sampling_rate"]
@@ -54,14 +58,8 @@ def create_nemo_dataset(config: Dict) -> Path:
     split = config.get("split", "test")
     sample_size = config.get("sample_size")
 
-    output_dir = (
-        Path.home()
-        / ".cache"
-        / "datasets"
-        / dataset_name.replace("/", "___")
-        / "audio_files"
-    )
-    manifest_path = output_dir.parent / f"{split}_manifest.json"
+    output_dir = Path.home() / ".cache" / "datasets" / dataset_name.replace("/", "___")
+    manifest_path = output_dir / f"{split}_manifest.json"
 
     # Load dataset to determine expected length
     dataset = load_dataset(dataset_name, split=split)
@@ -92,3 +90,26 @@ def create_nemo_dataset(config: Dict) -> Path:
             fout.write(json.dumps(metadata) + "\n")
 
     return manifest_path
+
+
+def convert_hf_dataset_nemo(dataset_name, output_dir, split=None) -> Path:
+
+    if isinstance(split, str):
+        dataset = load_dataset(dataset_name, split=split)
+        splits = [split]
+    else:
+        dataset = load_dataset(dataset_name)
+        splits = list(dataset.keys())
+
+    output_dir = Path.home() / ".cache" / "datasets" / dataset_name.replace("/", "___")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    for split in splits:
+        manifest_path = output_dir / f"{split}_manifest.json"
+
+        with manifest_path.open("w") as fout:
+            for sample in tqdm(dataset[split], desc=f"Processing {split} split"):
+                metadata = process_sample(sample, output_dir)
+                fout.write(json.dumps(metadata) + "\n")
+
+    return output_dir
