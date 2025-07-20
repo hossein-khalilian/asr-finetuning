@@ -14,6 +14,7 @@ model:
   compute_eval_loss: false # eval samples can be very long and exhaust memory. Disable computation of transducer loss during validation/testing with this flag.
   log_prediction: true # enables logging sample predictions in the output during training
   skip_nan_grad: false
+  freeze_encoder: true
 
   model_defaults:
     enc_hidden: ${model.encoder.d_model}
@@ -58,8 +59,8 @@ model:
   # You may find more detail on how to train a tokenizer at: /scripts/tokenizers/process_asr_text_tokenizer.py
   # We recommend to use vocab size of 1024 with SPE Unigram for most languages
   tokenizer:
-    dir: ???  # path to directory which contains either tokenizer.model (bpe) or vocab.txt (for wpe)
-    type: bpe  # Can be either bpe (SentencePiece tokenizer) or wpe (WordPiece tokenizer)
+    dir: ??? # path to directory which contains either tokenizer.model (bpe) or vocab.txt (for wpe)
+    type: bpe # Can be either bpe (SentencePiece tokenizer) or wpe (WordPiece tokenizer)
 
   preprocessor:
     _target_: nemo.collections.asr.modules.AudioToMelSpectrogramPreprocessor
@@ -108,7 +109,7 @@ model:
 
     # Convolution module's params
     conv_kernel_size: 9
-    conv_norm_type: 'batch_norm' # batch_norm or layer_norm or groupnormN (N specifies the number of groups)
+    conv_norm_type: "batch_norm" # batch_norm or layer_norm or groupnormN (N specifies the number of groups)
 
     ### regularization
     dropout: 0.1 # The dropout used in most of the Conformer Modules
@@ -118,7 +119,7 @@ model:
 
     # set to non-zero to enable stochastic depth
     stochastic_depth_drop_prob: 0.0
-    stochastic_depth_mode: linear  # linear or uniform
+    stochastic_depth_mode: linear # linear or uniform
     stochastic_depth_start_layer: 1
 
   decoder:
@@ -135,8 +136,8 @@ model:
 
   joint:
     _target_: nemo.collections.asr.modules.RNNTJoint
-    log_softmax: null  # 'null' would set it automatically according to CPU/GPU device
-    preserve_memory: false  # dramatically slows down training, but might preserve some memory
+    log_softmax: null # 'null' would set it automatically according to CPU/GPU device
+    preserve_memory: false # dramatically slows down training, but might preserve some memory
 
     # Fuses the computation of prediction net + joint net + loss + WER calculation
     # to be run on sub-batches of size `fused_batch_size`.
@@ -166,14 +167,14 @@ model:
       beam_size: 2
       return_best_hypothesis: False
       score_norm: true
-      tsd_max_sym_exp: 50  # for Time Synchronous Decoding
-      alsd_max_target_len: 2.0  # for Alignment-Length Synchronous Decoding
+      tsd_max_sym_exp: 50 # for Time Synchronous Decoding
+      alsd_max_target_len: 2.0 # for Alignment-Length Synchronous Decoding
 
   # The section which would contain the decoder and decoding configs of the auxiliary CTC decoder
   aux_ctc:
     ctc_loss_weight: 0.3 # the weight used to combine the CTC loss with the RNNT loss
     use_cer: false
-    ctc_reduction: 'mean_batch'
+    ctc_reduction: "mean_batch"
     decoder:
       _target_: nemo.collections.asr.modules.ConvASRDecoder
       feat_in: null
@@ -197,8 +198,8 @@ model:
       # FastEmit regularization: https://arxiv.org/abs/2010.11148
       # You may enable FastEmit to reduce the latency of the model for streaming
       # It also helps to improve the accuracy of the model in streaming mode
-      fastemit_lambda: 0.0  # Recommended values to be in range [1e-4, 1e-2], 0.001 is a good start.
-      clamp: -1.0  # if > 0, applies gradient clamping in range [-clamp, clamp] for the joint tensor only.
+      fastemit_lambda: 0.0 # Recommended values to be in range [1e-4, 1e-2], 0.001 is a good start.
+      clamp: -1.0 # if > 0, applies gradient clamping in range [-clamp, clamp] for the joint tensor only.
 
   optim:
     name: adamw
@@ -229,15 +230,14 @@ trainer:
   accumulate_grad_batches: 1
   gradient_clip_val: 1.0
   precision: 32 # 16, 32, or bf16
-  log_every_n_steps: 10  # Interval of logging.
+  log_every_n_steps: 10 # Interval of logging.
   enable_progress_bar: True
   num_sanity_val_steps: 0 # number of steps to perform validation steps for sanity check the validation process before starting the training, setting to 0 disables it
   check_val_every_n_epoch: 1 # number of evaluations on validation every n epochs
   sync_batchnorm: true
-  enable_checkpointing: False  # Provided by exp_manager
-  logger: false  # Provided by exp_manager
+  enable_checkpointing: False # Provided by exp_manager
+  logger: false # Provided by exp_manager
   benchmark: false # needs to be false for models with variable-length speech input as it slows down training
-
 
 exp_manager:
   exp_dir: null

@@ -98,7 +98,7 @@ trainer:
 exp_manager:
   exp_dir: null
   name: ${name}
-  create_tensorboard_logger: true
+  create_tensorboard_logger: false
   create_checkpoint_callback: true
   checkpoint_callback_params:
     # in case of multiple validation sets, first one is used
@@ -106,7 +106,7 @@ exp_manager:
     mode: "min"
     save_top_k: 5
     always_save_nemo: True # saves the checkpoints as nemo files along with PTL checkpoints
-  resume_if_exists: false
+  resume_if_exists: True
   resume_ignore_no_checkpoint: false
 
   create_wandb_logger: true

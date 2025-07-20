@@ -59,20 +59,34 @@ https://docs.nvidia.com/deeplearning/nemo/user-guide/docs/en/main/asr/configs.ht
 """
 
 import lightning.pytorch as pl
-from omegaconf import OmegaConf
-
+import torch
+import torch.nn as nn
 from nemo.collections.asr.models import EncDecHybridRNNTCTCBPEModel
 from nemo.core.config import hydra_runner
 from nemo.utils import logging
 from nemo.utils.exp_manager import exp_manager
 from nemo.utils.trainer_utils import resolve_trainer_cfg
+from omegaconf import OmegaConf
+
+
+def enable_bn_se(m):
+    if isinstance(m, nn.BatchNorm1d):
+        m.train()
+        for param in m.parameters():
+            param.requires_grad_(True)
+
+    if "SqueezeExcite" in type(m).__name__:
+        m.train()
+        for param in m.parameters():
+            param.requires_grad_(True)
 
 
 @hydra_runner(
-    config_path="../conf/conformer/hybrid_transducer_ctc/", config_name="conformer_hybrid_transducer_ctc_bpe"
+    config_path="../conf/conformer/hybrid_transducer_ctc/",
+    config_name="conformer_hybrid_transducer_ctc_bpe",
 )
 def main(cfg):
-    logging.info(f'Hydra config: {OmegaConf.to_yaml(cfg)}')
+    logging.info(f"Hydra config: {OmegaConf.to_yaml(cfg)}")
 
     trainer = pl.Trainer(**resolve_trainer_cfg(cfg.trainer))
     exp_manager(trainer, cfg.get("exp_manager", None))
@@ -81,12 +95,27 @@ def main(cfg):
     # Initialize the weights of the model from another model, if provided via config
     asr_model.maybe_init_from_pretrained_checkpoint(cfg)
 
+    # === Freeze encoder if flag is set ===
+    freeze_encoder = cfg.model.get("freeze_encoder", False)
+    freeze_encoder = bool(freeze_encoder)
+
+    if freeze_encoder:
+        asr_model.encoder.freeze()
+        asr_model.encoder.apply(enable_bn_se)
+        logging.info("Model encoder has been frozen")
+    else:
+        asr_model.encoder.unfreeze()
+        logging.info("Model encoder has been unfrozen")
+
     trainer.fit(asr_model)
 
-    if hasattr(cfg.model, 'test_ds') and cfg.model.test_ds.manifest_filepath is not None:
+    if (
+        hasattr(cfg.model, "test_ds")
+        and cfg.model.test_ds.manifest_filepath is not None
+    ):
         if asr_model.prepare_test(trainer):
             trainer.test(asr_model)
 
 
-if __name__ == '__main__':
-    main()  # noqa pylint: disable=no-value-for-parameter
+if __name__ == "__main__":
+    main()
