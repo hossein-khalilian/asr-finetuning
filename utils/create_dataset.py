@@ -92,7 +92,11 @@ def create_nemo_dataset(config: Dict) -> Path:
     return manifest_path
 
 
-def convert_hf_dataset_nemo(dataset_name, output_dir, split=None) -> Path:
+def convert_hf_dataset_nemo(
+    dataset_name,
+    output_dir=Path.home() / ".cache",
+    split=None,
+) -> Path:
 
     if isinstance(split, str):
         dataset = DatasetDict({split: load_dataset(dataset_name, split=split)})
@@ -101,11 +105,12 @@ def convert_hf_dataset_nemo(dataset_name, output_dir, split=None) -> Path:
         dataset = load_dataset(dataset_name)
         splits = list(dataset.keys())
 
-    output_dir = Path.home() / ".cache" / "datasets" / dataset_name.replace("/", "___")
+    output_dir = output_dir / "datasets" / dataset_name.replace("/", "___")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     for split in splits:
-        manifest_path = output_dir / f"{split}_manifest.json"
+        manifest_path = output_dir / "manifests" / f"{split}_manifest.json"
+        manifest_path.parent.mkdir(parents=True, exist_ok=True)
 
         with manifest_path.open("w") as fout:
             for sample in tqdm(dataset[split], desc=f"Processing {split} split"):
