@@ -4,7 +4,7 @@ from typing import Dict
 
 import torch
 import torchaudio
-from datasets import load_dataset
+from datasets import DatasetDict, load_dataset
 from tqdm import tqdm
 
 TARGET_SAMPLING_RATE = 16000
@@ -95,7 +95,7 @@ def create_nemo_dataset(config: Dict) -> Path:
 def convert_hf_dataset_nemo(dataset_name, output_dir, split=None) -> Path:
 
     if isinstance(split, str):
-        dataset = load_dataset(dataset_name, split=split)
+        dataset = DatasetDict({split: load_dataset(dataset_name, split=split)})
         splits = [split]
     else:
         dataset = load_dataset(dataset_name)
