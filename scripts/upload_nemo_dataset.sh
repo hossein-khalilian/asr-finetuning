@@ -51,7 +51,13 @@ chunk_size=$((500 * 1024 * 1024))  # 500 MB in bytes
 
 echo "Compressing 'audio_files' into chunks of 500MB max each in '$chunks_dir'..."
 
-tar -I pigz -cf - -C "$input_path" audio_files | pv -s $(du -sb "$input_path/audio_files" | awk '{print $1}') | split -b "$chunk_size" - "$chunks_dir/audio_files.tar.gz.part_"
+tar --sort=name \
+    --mtime='UTC 2020-01-01' \
+    --owner=0 --group=0 --numeric-owner \
+    -cf - -C "$input_path" audio_files | \
+    pigz -n | \
+    pv -s $(du -sb "$input_path/audio_files" | awk '{print $1}') | \
+    split -b "$chunk_size" - "$chunks_dir/audio_files.tar.gz.part_"
 
 echo "Compression completed."
 
