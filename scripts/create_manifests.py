@@ -8,14 +8,14 @@ def main():
         description="Convert Hugging Face dataset to NeMo format."
     )
     parser.add_argument(
-        "--dataset_name",
+        "--dataset",
         type=str,
         required=True,
         help="The name of the Hugging Face dataset (e.g., 'squad', 'imdb', 'glue').",
     )
     args = parser.parse_args()
 
-    convert_hf_dataset_nemo(dataset_name=args.dataset_name)
+    convert_hf_dataset_nemo(dataset_name=args.dataset)
 
 
 if __name__ == "__main__":
