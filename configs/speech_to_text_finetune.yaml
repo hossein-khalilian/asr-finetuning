@@ -96,7 +96,7 @@ trainer:
   benchmark: false # needs to be false for models with variable-length speech input as it slows down training
 
 exp_manager:
-  exp_dir: ~/.cache
+  exp_dir: /home/user/.cache/nemo_experiments/
   name: ${name}
   create_tensorboard_logger: false
   create_checkpoint_callback: true
@@ -104,9 +104,9 @@ exp_manager:
     # in case of multiple validation sets, first one is used
     monitor: "val_wer"
     mode: "min"
-    save_top_k: 5
+    save_top_k: 3
     always_save_nemo: true # saves the checkpoints as nemo files along with PTL checkpoints
-  resume_if_exists: false
+  resume_if_exists: true
   resume_ignore_no_checkpoint: false
 
   create_wandb_logger: true
