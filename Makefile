@@ -1,4 +1,4 @@
-.PHONY: help create-manifests upload-manifests
+.PHONY: help create-manifests upload-manifests process-tokenizer
 
 help: ## Show this help message
 	@echo "Available targets:"
@@ -20,3 +20,30 @@ upload-manifests: ## Upload manifests using the specified manifests-path
 	@echo "Uploading manifests from: $(manifests-path)"
 	@./scripts/upload_nemo_dataset.sh $(manifests-path)
 
+create-tokenizer: ## Process ASR tokenizer. Required: manifest, vocab_size. Optional: tokenizer (default: wpe), spe_type (only for spe), data_root (default: ~/.cache/asr-finetuning/tokenizers)
+	@if [ -z "$(manifest)" ]; then \
+		echo "Error: manifest is not set. Use 'make process-tokenizer manifest=path1,path2,...'"; \
+		exit 1; \
+	fi
+	@if [ -z "$(vocab_size)" ]; then \
+		echo "Error: vocab_size is not set. Use 'make process-tokenizer vocab_size=1024'"; \
+		exit 1; \
+	fi
+	@data_root=$(if $(data_root),$(data_root),~/.cache/asr-finetuning/tokenizers); \
+	tokenizer=$(if $(tokenizer),$(tokenizer),wpe); \
+	if [ "$$tokenizer" = "spe" ] && [ -z "$(spe_type)" ]; then \
+		echo "Error: spe_type is required when tokenizer=spe"; \
+		exit 1; \
+	fi; \
+	echo "Using data_root: $$data_root"; \
+	echo "Using tokenizer: $$tokenizer"; \
+	cmd="python scripts/process_asr_text_tokenizer.py \
+		--manifest=$(manifest) \
+		--data_root=$$data_root \
+		--vocab_size=$(vocab_size) \
+		--tokenizer=$$tokenizer"; \
+	if [ "$$tokenizer" = "spe" ]; then \
+		cmd="$$cmd --spe_type=$(spe_type)"; \
+	fi; \
+	cmd="$$cmd --log"; \
+	eval "$$cmd"
