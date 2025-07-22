@@ -1,4 +1,4 @@
-.PHONY: help create-manifests upload-manifests process-tokenizer
+.PHONY: help create-manifests upload-manifests create-tokenizer combine-manifests
 
 help: ## Show this help message
 	@echo "Available targets:"
@@ -22,11 +22,11 @@ upload-manifests: ## Upload manifests using the specified manifests-path
 
 create-tokenizer: ## Process ASR tokenizer. Required: manifest, vocab_size. Optional: tokenizer (default: wpe), spe_type (only for spe), data_root (default: ~/.cache/asr-finetuning/tokenizers)
 	@if [ -z "$(manifest)" ]; then \
-		echo "Error: manifest is not set. Use 'make process-tokenizer manifest=path1,path2,...'"; \
+		echo "Error: manifest is not set. Use 'make create-tokenizer manifest=path1,path2,...'"; \
 		exit 1; \
 	fi
 	@if [ -z "$(vocab_size)" ]; then \
-		echo "Error: vocab_size is not set. Use 'make process-tokenizer vocab_size=1024'"; \
+		echo "Error: vocab_size is not set. Use 'make create-tokenizer vocab_size=1024'"; \
 		exit 1; \
 	fi
 	@data_root=$(if $(data_root),$(data_root),~/.cache/asr-finetuning/tokenizers); \
@@ -47,3 +47,13 @@ create-tokenizer: ## Process ASR tokenizer. Required: manifest, vocab_size. Opti
 	fi; \
 	cmd="$$cmd --log"; \
 	eval "$$cmd"
+
+combine-manifests: ## Combine multiple manifests. Required: manifests (comma separated list of manifest paths)
+	@if [ -z "$(manifests)" ]; then \
+		echo "Error: manifests is not set. Use 'make combine-manifests manifests=path1,path2,...'"; \
+		exit 1; \
+	fi
+	@echo "Combining manifests:"; \
+	echo "  $(manifests)"; \
+	python scripts/combine_manifests.py $(manifests)
+
