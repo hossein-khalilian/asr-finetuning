@@ -106,7 +106,7 @@ exp_manager:
     mode: "min"
     save_top_k: 3
     always_save_nemo: true # saves the checkpoints as nemo files along with PTL checkpoints
-  resume_if_exists: true
+  resume_if_exists: false
   resume_ignore_no_checkpoint: false
 
   create_wandb_logger: true

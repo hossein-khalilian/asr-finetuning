@@ -94,7 +94,7 @@ def create_nemo_dataset(config: Dict) -> Path:
 
 def convert_hf_dataset_nemo(
     dataset_name,
-    output_dir=Path.home() / ".cache",
+    output_dir=Path.home() / ".cache" / "asr-finetuning",
     split=None,
 ) -> Path:
 
