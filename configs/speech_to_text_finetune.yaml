@@ -6,6 +6,7 @@ init_from_nemo_model: null # path to nemo model
 
 model:
   sample_rate: 16000
+  freeze_encoder: true
 
   train_ds:
     manifest_filepath: ???
