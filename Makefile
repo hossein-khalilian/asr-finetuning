@@ -1,4 +1,4 @@
-.PHONY: help create-manifests upload-manifests create-tokenizer combine-manifests
+.PHONY: help create-manifests upload-manifests create-tokenizer combine-manifests full-tokenizer-pipeline
 
 help: ## Show this help message
 	@echo "Available targets:"
@@ -57,3 +57,8 @@ combine-manifests: ## Combine multiple manifests. Usage: make combine-manifests 
 	for f in $(manifests); do echo "  $$f"; done; \
 	python scripts/combine_manifests.py $(manifests)
 
+full-tokenizer-pipeline: ## Run the full pipeline: create, combine manifests, and create tokenizer
+	@$(MAKE) create-manifests dataset=hsekhalilian/fleurs
+	@$(MAKE) create-manifests dataset=hsekhalilian/sorted_commonvoice
+	@$(MAKE) combine-manifests manifests="~/.cache/asr-finetuning/datasets/hsekhalilian___fleurs/manifests/train_manifest.json ~/.cache/asr-finetuning/datasets/hsekhalilian___sorted_commonvoice/manifests/train_manifest.json"
+	@$(MAKE) create-tokenizer manifest=~/.cache/asr-finetuning/datasets/combined/train_manifest.json vocab_size=1024 tokenizer=spe spe_type=bpe

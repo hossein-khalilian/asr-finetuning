@@ -3,6 +3,7 @@ name: "Speech_To_Text_Finetuning"
 # use `init_from_nemo_model` or `init_from_pretrained_model` to initialize the model
 # We do not currently support `init_from_ptl_ckpt` to create a single script for all types of models.
 init_from_nemo_model: null # path to nemo model
+init_from_pretrained_model: null
 
 model:
   sample_rate: 16000

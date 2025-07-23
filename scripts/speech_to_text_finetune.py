@@ -105,27 +105,7 @@ def get_base_model(trainer, cfg):
     elif nemo_model_path is not None:
         asr_model = ASRModel.restore_from(restore_path=nemo_model_path)
     elif pretrained_name is not None:
-        # Due to potential first time download of the model on the cluster, we need to make sure that only one
-        # rank downloads the model and the others wait for the download to finish.
-        num_ranks = trainer.num_devices * trainer.num_devices
-
-        if num_ranks > 1 and is_global_rank_zero():
-            asr_model = ASRModel.from_pretrained(model_name=pretrained_name)
-        else:
-            # Sleep on all ranks for at least 60 seconds
-            wait_time = int(cfg.get("exp_manager", {}).get("seconds_to_sleep", 60))
-            if wait_time < 60:
-                wait_time = 60
-
-            logging.info(
-                f"Sleeping for at least {wait_time} seconds to wait for model download to finish."
-            )
-
-            time.sleep(wait_time)
-
-            # restore model from cached model dir
-            asr_model = ASRModel.from_pretrained(model_name=pretrained_name)
-
+        asr_model = ASRModel.from_pretrained(model_name=pretrained_name)
     if cfg.model.freeze_encoder:
         asr_model.encoder.freeze()
         asr_model.encoder.apply(enable_bn_se)
