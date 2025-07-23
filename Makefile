@@ -48,12 +48,12 @@ create-tokenizer: ## Process ASR tokenizer. Required: manifest, vocab_size. Opti
 	cmd="$$cmd --log"; \
 	eval "$$cmd"
 
-combine-manifests: ## Combine multiple manifests. Required: manifests (comma separated list of manifest paths)
+combine-manifests: ## Combine multiple manifests. Usage: make combine-manifests manifests="path1 path2 ..."
 	@if [ -z "$(manifests)" ]; then \
-		echo "Error: manifests is not set. Use 'make combine-manifests manifests=path1,path2,...'"; \
+		echo "Error: manifests is not set. Use 'make combine-manifests manifests=\"path1 path2 ...\"'"; \
 		exit 1; \
 	fi
 	@echo "Combining manifests:"; \
-	echo "  $(manifests)"; \
+	for f in $(manifests); do echo "  $$f"; done; \
 	python scripts/combine_manifests.py $(manifests)
 

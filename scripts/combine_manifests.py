@@ -23,7 +23,6 @@ def combine_manifests(manifest_paths, output_dir):
     with open(output_path, "r") as f:
         total_output_lines = sum(1 for _ in f)
 
-    print(f"\nTotal input lines: {total_input_lines}")
     print(f"Total output lines: {total_output_lines}")
     print(f"Combined manifest saved to: {output_path}")
 
