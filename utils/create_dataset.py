@@ -7,6 +7,11 @@ import torchaudio
 from datasets import DatasetDict, load_dataset
 from tqdm import tqdm
 
+from utils.normalizer import (
+    persian_normalizer_no_punc,
+    persian_normalizer_no_punc_no_digit,
+)
+
 TARGET_SAMPLING_RATE = 16000
 
 
@@ -32,15 +37,18 @@ def process_sample(sample: Dict, output_dir: Path) -> Dict:
         or sample.get("sentence")
         or sample.get("text")
     )
-    audio_info = sample["audio"]
+    # text = persian_normalizer_no_punc(text)
+    text = persian_normalizer_no_punc(text)
 
+    audio_info = sample["audio"]
     audio_filename = Path(audio_info["path"]).name
     output_audio_path = output_dir / "audio_files" / audio_filename
 
     waveform = torch.tensor(audio_info["array"]).unsqueeze(0)
     sr = audio_info["sampling_rate"]
 
-    waveform = resample_audio(waveform, sr, TARGET_SAMPLING_RATE)
+    if sr != TARGET_SAMPLING_RATE:
+        waveform = resample_audio(waveform, sr, TARGET_SAMPLING_RATE)
 
     save_audio(waveform, TARGET_SAMPLING_RATE, output_audio_path)
 
@@ -115,6 +123,7 @@ def convert_hf_dataset_nemo(
         with manifest_path.open("w") as fout:
             for sample in tqdm(dataset[split], desc=f"Processing {split} split"):
                 metadata = process_sample(sample, output_dir)
-                fout.write(json.dumps(metadata) + "\n")
+                if metadata["text"]:
+                    fout.write(json.dumps(metadata) + "\n")
 
     return output_dir
