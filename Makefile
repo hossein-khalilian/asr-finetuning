@@ -61,4 +61,5 @@ full-tokenizer-pipeline: ## Run the full pipeline: create, combine manifests, an
 	@$(MAKE) create-manifests dataset=hsekhalilian/fleurs
 	@$(MAKE) create-manifests dataset=hsekhalilian/sorted_commonvoice
 	@$(MAKE) combine-manifests manifests="~/.cache/asr-finetuning/datasets/hsekhalilian___fleurs/manifests/train_manifest.json ~/.cache/asr-finetuning/datasets/hsekhalilian___sorted_commonvoice/manifests/train_manifest.json"
+	sleep 2
 	@$(MAKE) create-tokenizer manifest=~/.cache/asr-finetuning/datasets/combined/train_manifest.json vocab_size=1024 tokenizer=spe spe_type=bpe
