@@ -7,7 +7,7 @@ init_from_pretrained_model: null
 
 model:
   sample_rate: 16000
-  freeze_encoder: true
+  freeze_encoder: false
 
   train_ds:
     manifest_filepath: ???

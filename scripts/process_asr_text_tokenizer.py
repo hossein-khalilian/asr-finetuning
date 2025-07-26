@@ -220,10 +220,6 @@ def __build_document_from_manifests(
         logging.info("Corpus already exists at path : %s — updating it.", document_path)
         os.remove(document_path)
 
-    # if os.path.exists(document_path):
-    #     logging.info('Corpus already exists at path : %s', document_path)
-    #     return document_path
-
     num_lines = 0
     with open(document_path, "w") as out_writer:
         for manifest in manifests:
