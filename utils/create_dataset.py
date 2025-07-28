@@ -5,12 +5,8 @@ from typing import Dict
 import torch
 import torchaudio
 from datasets import DatasetDict, load_dataset
+from text_normalizer.persian_normalizer import persian_normalizer_no_punc
 from tqdm import tqdm
-
-from utils.normalizer import (
-    persian_normalizer_no_punc,
-    persian_normalizer_no_punc_no_digit,
-)
 
 TARGET_SAMPLING_RATE = 16000
 
@@ -33,11 +29,12 @@ def save_audio(waveform: torch.Tensor, sr: int, path: Path) -> None:
 
 def process_sample(sample: Dict, output_dir: Path) -> Dict:
     text = (
-        sample.get("normalized_transcription")
+        sample.get("text")
         or sample.get("sentence")
-        or sample.get("text")
+        or sample.get("raw_transcription")
+        or sample.get("transcription")
+        or sample.get("normalized_transcription")
     )
-    # text = persian_normalizer_no_punc(text)
     text = persian_normalizer_no_punc(text)
 
     audio_info = sample["audio"]
