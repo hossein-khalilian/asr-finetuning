@@ -21,6 +21,7 @@ protobuf==4.24.4
 scikit-learn==1.7.0
 setuptools==80.9.0
 cuda-python>=12.3
-python-dotenv
+python-dotenv==1.1.1
+hydra-core==1.3.2
 
 git+https://github.com/hossein-khalilian/text_normalizer.git
